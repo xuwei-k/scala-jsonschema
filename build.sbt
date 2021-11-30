@@ -119,7 +119,7 @@ lazy val macros = { project in file("macros") }.dependsOn(core).settings (
     (scalaVersion apply ("org.scala-lang" % "scala-reflect" % _ % Compile)).value.withSources.withJavadoc)
 )
 
-lazy val api = { project in file("api") }.dependsOn(core, macros).settings(
+lazy val api = { project in file("api") }.dependsOn(core).settings(
   commonSettings,
 
   name := "scala-jsonschema"
@@ -133,7 +133,8 @@ lazy val `play-json` = { project in file("modules/play-json") }.dependsOn(core, 
   libraryDependencies += {
     val playV = CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 11)) => "2.7.4"
-      case _             => "2.9.2"
+      case Some((2, _))  => "2.9.2"
+      case Some((3, _))  => "2.10.0-RC5"
     }
 
     "com.typesafe.play" %% "play-json" % playV
@@ -275,13 +276,13 @@ lazy val enumeratum = { project in file("modules/enumeratum") }.dependsOn(core, 
   libraryDependencies += "com.beachape" %% "enumeratum" % "1.7.0",
 )
 
-lazy val derived = { project in file("modules/derived") }.dependsOn(core, api, macros).settings(
+lazy val derived = { project in file("modules/derived") }.dependsOn(core, api).settings(
   commonSettings,
 
   name := "scala-jsonschema-derived",
 
   libraryDependencies ++= Seq(
-    (scalaVersion apply ("org.scala-lang" % "scala-reflect" % _ % Compile)).value.withSources.withJavadoc
+    //(scalaVersion apply ("org.scala-lang" % "scala-reflect" % _ % Compile)).value.withSources.withJavadoc
   )
 )
 
@@ -366,8 +367,6 @@ lazy val docs = { project in file("documentation") }
 lazy val root = { project in file(".") }
   .aggregate(
     core,
-    macros,
-    derived,
     api,
     parser,
     refined,
